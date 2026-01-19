@@ -1,0 +1,66 @@
+julia --project=.
+
+] instantiate
+using CurvilinearGrids
+
+julia --project=. in/sphere_demo.jl
+
+?CurvilinearGrid3D
+methods(CurvilinearGrid3D)
+
+///
+
+using GLMakie  # ] add GLMakie
+
+# assume x,y,z already exist as (ni,nj,nk)
+fig = Figure()
+ax = Axis3(fig[1,1]; aspect=:data)
+
+k = Int(cld(size(x,3), 2))  # middle phi slice
+
+# lines along i (radial direction)
+for j in 1:size(x,2)
+    lines!(ax, vec(x[:,j,k]), vec(y[:,j,k]), vec(z[:,j,k]))
+end
+
+# lines along j (theta direction)
+for i in 1:size(x,1)
+    lines!(ax, vec(x[i,:,k]), vec(y[i,:,k]), vec(z[i,:,k]))
+end
+
+display(fig)
+
+///
+
+using WriteVTK  # ] add WriteVTK
+
+vtk_grid("out/sphere", x, y, z) do vtk
+    # Optional: attach any scalar/vector fields you compute later
+    # vtk["some_scalar"] = rand(size(x)...)
+end
+
+///
+
+include("in/sphere_demo.jl")
+include("in/demo.jl")
+include("in/demo2d.jl")
+include("in/cGrid.jl")
+include("in/ellipse.jl")
+include("in/naca0012.jl")
+include("in/demo_repo.jl")
+include("in/wavy_grid.jl")
+
+///
+
+cd ~/CFD/curvilinearGrids
+julia --project=. in/sphere_demo.jl
+julia --project=. in/demo.jl
+julia --project=. in/demo_repo.jl
+julia --project=. in/wavy_grid.jl
+
+///
+
+mesh
+
+///
+
